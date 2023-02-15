@@ -8,7 +8,7 @@ struct posix_header
   char size[12];		/* 124 */
   char mtime[12];		/* 136 */
   char chksum[8];		/* 148 */
-  char typeflag;		/* 156 */
+//  char typeflag;		/* 156 */
   char linkname[100];		/* 157 */
   char magic[6];		/* 257 */
   char version[2];		/* 263 */
@@ -131,45 +131,6 @@ struct oldgnu_header
 				/* 495 */
 };
 
-/* OLDGNU_MAGIC uses both magic and version fields, which are contiguous.
-   Found in an archive, it indicates an old GNU header format, which will be
-   hopefully become obsolescent.  With OLDGNU_MAGIC, uname and gname are
-   valid, though the header is not truly POSIX conforming.  */
-#define OLDGNU_MAGIC "ustar  "	/* 7 chars and a null */
-
-/* The standards committee allows only capital A through capital Z for
-   user-defined expansion.  Other letters in use include:
-
-   'A' Solaris Access Control List
-   'E' Solaris Extended Attribute File
-   'I' Inode only, as in 'star'
-   'N' Obsolete GNU tar, for file names that do not fit into the main header.
-   'X' POSIX 1003.1-2001 eXtended (VU version)  */
-
-/* This is a dir entry that contains the names of files that were in the
-   dir at the time the dump was made.  */
-#define GNUTYPE_DUMPDIR	'D'
-
-/* Identifies the *next* file on the tape as having a long linkname.  */
-#define GNUTYPE_LONGLINK 'K'
-
-/* Identifies the *next* file on the tape as having a long name.  */
-#define GNUTYPE_LONGNAME 'L'
-
-/* This is the continuation of a file that began on another volume.  */
-#define GNUTYPE_MULTIVOL 'M'
-
-/* This is for sparse files.  */
-#define GNUTYPE_SPARSE 'S'
-
-/* This file is a tape/volume header.  Ignore it on extraction.  */
-#define GNUTYPE_VOLHDR 'V'
-
-/* Solaris extended header */
-#define SOLARIS_XHDTYPE 'X'
-
-/* J@"org Schilling star header */
-
 struct star_header
 {				/* byte offset */
   char name[100];		/*   0 */
@@ -212,11 +173,6 @@ struct star_in_header
   char xmagic[4];       /* 508  "tar" */
 };
 
-struct star_ext_header
-{
-  struct sparse sp[SPARSES_IN_STAR_EXT_HEADER];
-  char isextended;
-};
 
 /* END */
 
@@ -224,137 +180,3 @@ struct star_ext_header
 /* tar Header Block, overall structure.  */
 
 /* tar files are made in basic blocks of this size.  */
-#define BLOCKSIZE 512
-
-enum archive_format
-{
-  DEFAULT_FORMAT,		/* format to be decided later */
-  V7_FORMAT,			/* old V7 tar format */
-  OLDGNU_FORMAT,		/* GNU format as per before tar 1.12 */
-  USTAR_FORMAT,                 /* POSIX.1-1988 (ustar) format */
-  POSIX_FORMAT,			/* POSIX.1-2001 format */
-  STAR_FORMAT,                  /* Star format defined in 1994 */
-  GNU_FORMAT			/* Same as OLDGNU_FORMAT with one exception:
-                                   see FIXME note for to_chars() function
-                                   (create.c:189) */
-};
-
-/* Information about a sparse file.  */
-struct sp_array
-{
-  off_t offset;
-  off_t numbytes;
-};
-
-struct xheader
-{
-  struct obstack *stk;
-  size_t size;
-  char *buffer;
-  uintmax_t string_length;
-};
-
-/* Information about xattrs for a file.  */
-struct xattr_array
-  {
-    char *xkey;
-    char *xval_ptr;
-    size_t xval_len;
-  };
-
-struct tar_stat_info
-{
-  char *orig_file_name;     /* name of file read from the archive header */
-  char *file_name;          /* name of file for the current archive entry
-			       after being normalized.  */
-  bool had_trailing_slash;  /* true if the current archive entry had a
-			       trailing slash before it was normalized. */
-  char *link_name;          /* name of link for the current archive entry.  */
-
-  char          *uname;     /* user name of owner */
-  char          *gname;     /* group name of owner */
-
-  char *cntx_name;          /* SELinux context for the current archive entry. */
-
-  char *acls_a_ptr;         /* Access ACLs for the current archive entry. */
-  size_t acls_a_len;        /* Access ACLs for the current archive entry. */
-
-  char *acls_d_ptr;         /* Default ACLs for the current archive entry. */
-  size_t acls_d_len;        /* Default ACLs for the current archive entry. */
-
-  struct stat   stat;       /* regular filesystem stat */
-
-  /* STAT doesn't always have access, data modification, and status
-     change times in a convenient form, so store them separately.  */
-  struct timespec atime;
-  struct timespec mtime;
-  struct timespec ctime;
-
-  off_t archive_file_size;  /* Size of file as stored in the archive.
-			       Equals stat.st_size for non-sparse files */
-
-  bool   is_sparse;         /* Is the file sparse */
-
-  /* For sparse files: */
-  unsigned sparse_major;
-  unsigned sparse_minor;
-  size_t sparse_map_avail;  /* Index to the first unused element in
-			       sparse_map array. Zero if the file is
-			       not sparse */
-  size_t sparse_map_size;   /* Size of the sparse map */
-  struct sp_array *sparse_map;
-
-  off_t real_size;          /* The real size of sparse file */
-  bool  real_size_set;      /* True when GNU.sparse.realsize is set in
-			       archived file */
-
-  bool  sparse_name_done;   /* Set to true if 'GNU.sparse.name' header was
-                               processed pax header parsing.  Following 'path'
-                               header (lower priority) will be ignored. */
-
-  size_t xattr_map_size;   /* Size of the xattr map */
-  struct xattr_array *xattr_map;
-
-  /* Extended headers */
-  struct xheader xhdr;
-
-  /* For dumpdirs */
-  bool is_dumpdir;          /* Is the member a dumpdir? */
-  bool skipped;             /* The member contents is already read
-			       (for GNUTYPE_DUMPDIR) */
-  char *dumpdir;            /* Contents of the dump directory */
-
-  /* Parent directory, if creating an archive.  This is null if the
-     file is at the top level.  */
-  struct tar_stat_info *parent;
-
-  /* Directory stream.  If this is not null, it is in control of FD,
-     and should be closed instead of FD.  */
-  DIR *dirstream;
-
-  /* File descriptor, if creating an archive, and if a directory or a
-     regular file or a contiguous file.
-
-     It is zero if no file descriptor is available, either because it
-     was never needed or because it was open and then closed to
-     conserve on file descriptors.  (Standard input is never used
-     here, so zero cannot be a valid file descriptor.)
-
-     It is negative if it could not be reopened after it was closed.
-     Negate it to find out what errno was when the reopen failed.  */
-  int fd;
-
-  /* Exclusion list */
-  struct exclist *exclude_list;
-};
-
-union block
-{
-  char buffer[BLOCKSIZE];
-  struct posix_header header;
-  struct star_header star_header;
-  struct oldgnu_header oldgnu_header;
-  struct sparse_header sparse_header;
-  struct star_in_header star_in_header;
-  struct star_ext_header star_ext_header;
-};
