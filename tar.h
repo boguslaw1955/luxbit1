@@ -1,3 +1,8 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+char * headbin(char * text, int sizb);
 
 struct posix_header
 {				/* byte offset */
