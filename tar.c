@@ -5,7 +5,7 @@
 int main(int argc, char *argv[])
 {
     printf("argc = %d\n", argc);
-    for(int ndx = 0; ndx != argc; ++ndx)
+    for(int ndx = 1; ndx != argc; ++ndx)
         printf("argv[%d] --> %s\n", ndx, argv[ndx]);
     
     
@@ -17,13 +17,69 @@ int main(int argc, char *argv[])
     FILE *fout = fopen(argv[1], "wb");
     char * str_out;
     
-    int BLK_NAME = 100;
-    str_out = headbin(argv[1], BLK_NAME);
-    fwrite(str_out, 1, BLK_NAME, fout);
-    int BLK_MODE = 8;
-    str_out = headbin("000644 ", BLK_MODE);
-    fwrite(str_out, 1, BLK_MODE, fout);
+    int HDR_NAME = 100;
+    str_out = headbin(argv[1], HDR_NAME);
+    fwrite(str_out, 1, HDR_NAME, fout);
     
+    int HDR_MODE = 8;
+    str_out = headbin("000644 ", HDR_MODE);
+    fwrite(str_out, 1, HDR_MODE, fout);
+    
+    int HDR_UID = 8;
+    str_out = headbin("000765 ", HDR_UID);
+    fwrite(str_out, 1, HDR_UID, fout);
+    
+    int HDR_GID = 8;
+    str_out = headbin("000024 ", HDR_GID);
+    fwrite(str_out, 1, HDR_GID, fout);
+    
+    int HDR_SIZE = 12;
+    str_out = headbin("12345678912 ", HDR_SIZE);
+    fwrite(str_out, 1, HDR_SIZE, fout);
+    
+    int HDR_MTIME = 12;
+    str_out = headbin("14361112131 ", HDR_MTIME);
+    fwrite(str_out, 1, HDR_MTIME, fout);
+    
+    int HDR_CHKSUM = 8;
+    str_out = headbin("1234567 ", HDR_CHKSUM);
+    fwrite(str_out, 1, HDR_CHKSUM, fout);
+    
+    int HDR_TYPEFLAG = 1;
+    str_out = headbin("0", HDR_TYPEFLAG);
+    fwrite(str_out, 1, HDR_TYPEFLAG, fout);
+    
+    int HDR_LINKNAME = 100;
+    str_out = headbin("", HDR_LINKNAME);
+    fwrite(str_out, 1, HDR_LINKNAME, fout);
+    
+    int HDR_MAGIC = 6;
+    str_out = headbin("ustar", HDR_MAGIC);
+    fwrite(str_out, 1, HDR_MAGIC, fout);
+    
+    int HDR_VERSION = 2;
+    str_out = headbin("00", HDR_VERSION);
+    fwrite(str_out, 1, HDR_VERSION, fout);
+    
+    int HDR_UNAME = 32;
+    str_out = headbin("boguslaw", HDR_UNAME);
+    fwrite(str_out, 1, HDR_UNAME, fout);
+    
+    int HDR_GNAME = 32;
+    str_out = headbin("staff", HDR_GNAME);
+    fwrite(str_out, 1, HDR_GNAME, fout);
+    
+    int HDR_DEVMAJOR = 8;
+    str_out = headbin("0000000", HDR_DEVMAJOR);
+    fwrite(str_out, 1, HDR_DEVMAJOR, fout);
+    
+    int HDR_DEVMINOR = 8;
+    str_out = headbin("0000000", HDR_DEVMINOR);
+    fwrite(str_out, 1, HDR_DEVMINOR, fout);
+    
+    int HDR_PREFIX = 155;
+    str_out = headbin("", HDR_PREFIX);
+    fwrite(str_out, 1, HDR_PREFIX, fout);
     
     fflush(fout);
     fclose(fout);
@@ -33,7 +89,6 @@ char * headbin(char * tekst, int sizb)
     char * buf;
     int i;
     buf = (char *) malloc(sizb);
-    int temp = strlen(tekst);
     sprintf(buf, "%s" , tekst);
     for (i = strlen(tekst); i < sizb; i ++) 
         {
