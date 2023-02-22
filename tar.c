@@ -1,7 +1,7 @@
 #include "tar.h"
-#include <stdio.h>
-#include <string.h>
 
+struct stat fileStat;
+struct dirent *dp;
 int main(int argc, char *argv[])
 {
     printf("argc = %d\n", argc);
@@ -17,28 +17,35 @@ int main(int argc, char *argv[])
     FILE *fout = fopen(argv[1], "wb");
     char * str_out;
     
+    char * out_filename;
+    strcpy(out_filename, argv[1]);
     int HDR_NAME = 100;
-    str_out = headbin(argv[1], HDR_NAME);
+    str_out = headbin(out_filename, HDR_NAME);
     fwrite(str_out, 1, HDR_NAME, fout);
     
     int HDR_MODE = 8;
-    str_out = headbin("000644 ", HDR_MODE);
+    char * mode = getMode(out_filename);
+    str_out = headbin(mode, HDR_MODE);
     fwrite(str_out, 1, HDR_MODE, fout);
     
     int HDR_UID = 8;
-    str_out = headbin("000765 ", HDR_UID);
+    char * uid = getUID(out_filename);
+    str_out = headbin(uid, HDR_UID);
     fwrite(str_out, 1, HDR_UID, fout);
     
     int HDR_GID = 8;
-    str_out = headbin("000024 ", HDR_GID);
+    char * gid = getGID(out_filename);
+    str_out = headbin(gid, HDR_GID);
     fwrite(str_out, 1, HDR_GID, fout);
     
     int HDR_SIZE = 12;
-    str_out = headbin("12345678912 ", HDR_SIZE);
+    char * size = getSize(out_filename);
+    str_out = headbin(size, HDR_SIZE);
     fwrite(str_out, 1, HDR_SIZE, fout);
     
     int HDR_MTIME = 12;
-    str_out = headbin("14361112131 ", HDR_MTIME);
+    char * mtime = getMtime(out_filename);
+    str_out = headbin(mtime, HDR_MTIME);
     fwrite(str_out, 1, HDR_MTIME, fout);
     
     int HDR_CHKSUM = 8;
@@ -81,6 +88,7 @@ int main(int argc, char *argv[])
     str_out = headbin("", HDR_PREFIX);
     fwrite(str_out, 1, HDR_PREFIX, fout);
     
+    
     fflush(fout);
     fclose(fout);
 }
@@ -96,4 +104,60 @@ char * headbin(char * tekst, int sizb)
         }	
     return buf;
 }
-				/* byte offset */		/* 345 */
+
+char * getMode(char * fileName)
+{
+    if(stat(fileName, &fileStat) < 0) 
+        return NULL;
+    
+    char * sMode;
+    
+    sprintf(sMode, "%o", fileStat.st_mode);
+    return sMode;
+     
+}
+char * getUID(char * fileName)
+{
+    if(stat(fileName, &fileStat) < 0) 
+        return NULL;
+    
+    char * sUID;
+    
+    sprintf(sUID, "%o", fileStat.st_uid);
+    return sUID;
+    
+}
+char * getGID(char * fileName)
+{
+    if(stat(fileName, &fileStat) < 0) 
+        return NULL;
+    
+    char * sGID;
+    
+    sprintf(sGID, "%o", fileStat.st_gid);
+    return sGID;
+    
+}
+char * getSize(char * fileName)
+{
+    if(stat(fileName, &fileStat) < 0) 
+        return NULL;
+    
+    char * size;
+    
+    int i_size = fileStat.st_size;
+    sprintf(size, "%d",  i_size);
+    return size;
+    
+}
+char * getMtime(char * fileName)
+{
+    if(stat(fileName, &fileStat) < 0) 
+        return NULL;
+    
+    char * mtime;
+    int i_mtime = fileStat.st_mtime;
+    sprintf(mtime, "%o", i_mtime);
+    return mtime;
+    
+}

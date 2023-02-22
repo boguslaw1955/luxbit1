@@ -1,9 +1,27 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+
 
 char * headbin(char * text, int sizb);
 
+char * getMode(char * filenane);
+char * getUID(char * filename);
+char * getGID(char * filename);
+char * getSize(char * filename);
+char * getMtime(char * filename);
+char * getChksum(char * filename);
+char * getLinkname(char * filename);
+char * getMagic(char * filename);
+char * getVersion(char * filename);
+char * getUname(char * filename);
+char * getGname(char * filename);
+char * getDevmajor(char * filename);
+char * getDevminor(char * filename);
+char * getPrefix(char * filename);
 struct posix_header
 {				/* byte offset */
   char name[100];		/*   0 */
