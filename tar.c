@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
     int HDR_TYPEFLAG = 1;
     char * typeflag = "1";
     str_out = headbin("0", HDR_TYPEFLAG);
-    fwrite(str_out, 1, HDR_TYPEFLAG, fout);
+    fwrite(str_out, 1, HDR_TYPEFLAG, fout);                             
     
     
     int HDR_LINKNAME = 100;
@@ -65,29 +65,31 @@ int main(int argc, char *argv[])
     fwrite(str_out, 1, HDR_LINKNAME, fout);
     
     int HDR_MAGIC = 6;
+    char * magic = getMagic(out_filename);
     str_out = headbin("ustar", HDR_MAGIC);
     fwrite(str_out, 1, HDR_MAGIC, fout);
-       
-
-    
+           
     int HDR_VERSION = 2;
-    str_out = headbin("00", HDR_VERSION);
+    char * version = getVersion(out_filename);
+    str_out = headbin(version, HDR_VERSION);
     fwrite(str_out, 1, HDR_VERSION, fout);
     
     int HDR_UNAME = 32;
-    str_out = headbin("boguslawfries", HDR_UNAME);
+    char * uname = getUname(out_filename);
+    str_out = headbin(uname, HDR_UNAME);
     fwrite(str_out, 1, HDR_UNAME, fout);
     
-    int HDR_GNAME = 32;
-    str_out = headbin("staff", HDR_GNAME);
+    int HDR_GNAME = 32;    
+    char * gname = getGname(out_filename);
+    str_out = headbin(gname, HDR_GNAME);
     fwrite(str_out, 1, HDR_GNAME, fout);
     
     int HDR_DEVMAJOR = 8;
-    str_out = headbin("0000000", HDR_DEVMAJOR);
+    str_out = headbin("20", HDR_DEVMAJOR);
     fwrite(str_out, 1, HDR_DEVMAJOR, fout);
     
     int HDR_DEVMINOR = 8;
-    str_out = headbin("0000000", HDR_DEVMINOR);
+    str_out = headbin("20", HDR_DEVMINOR);
     fwrite(str_out, 1, HDR_DEVMINOR, fout);
     
     int HDR_PREFIX = 155;
@@ -189,5 +191,72 @@ char * getLinkname(char * fileName)
     
     sprintf(linkname, "%s","1");
     return linkname;
+    
+}
+
+char * getMagic(char * fileName)
+{
+    if(stat(fileName, &fileStat) < 0) 
+        return NULL;
+    
+    char * magic;
+    
+    sprintf(magic, "%s","1");
+    return magic;
+    
+}
+char * getVersion(char * fileName)
+{
+    if(stat(fileName, &fileStat) < 0) 
+        return NULL;
+    
+    char * version;
+    
+    sprintf(version, "%s","1");
+    return version;
+    
+}
+char * getUname(char * fileName)
+{
+    if(stat(fileName, &fileStat) < 0) 
+        return NULL;
+    
+    char * uname;
+    
+    sprintf(uname, "%s","bfries");
+    return uname;
+    
+}
+char * getGname(char * fileName)
+{
+    if(stat(fileName, &fileStat) < 0) 
+        return NULL;
+    
+    char * gname;
+    
+    sprintf(gname, "%s","utar");
+    return gname;
+    
+}
+char * getDevMajor(char * fileName)
+{
+    if(stat(fileName, &fileStat) < 0) 
+        return NULL;
+    
+    char * major;
+    sprintf(major, "%s", "20");
+    
+    return major;
+    
+}
+char * getDevMinor(char * fileName)
+{
+    if(stat(fileName, &fileStat) < 0) 
+        return NULL;
+    
+    char * minor;
+    sprintf(minor, "%s", "20");
+    
+    return minor;
     
 }

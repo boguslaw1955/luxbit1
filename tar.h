@@ -19,9 +19,6 @@ char * getMagic(char * filename);
 char * getVersion(char * filename);
 char * getUname(char * filename);
 char * getGname(char * filename);
-char * getDevmajor(char * filename);
-char * getDevminor(char * filename);
-char * getPrefix(char * filename);
 struct posix_header
 {				/* byte offset */
   char name[100];		/*   0 */
