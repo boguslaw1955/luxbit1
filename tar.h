@@ -14,7 +14,7 @@ char * getGID(char * filename);
 char * getSize(char * filename);
 char * getMtime(char * filename);
 char * getChksum(char * filename);
-char * getLinknumber(char * filename);
+char * getLinkname(char * filename);
 char * getMagic(char * filename);
 char * getVersion(char * filename);
 char * getUname(char * filename);

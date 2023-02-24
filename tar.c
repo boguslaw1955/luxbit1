@@ -48,17 +48,27 @@ int main(int argc, char *argv[])
     str_out = headbin(chksum, HDR_CHKSUM);
     fwrite(str_out, 1, HDR_CHKSUM, fout);
     
+    int HDR_MTIME;    
+    char * mtime = "000";
+    str_out = headbin(mtime, HDR_MTIME);
+    fwrite(str_out, 1, HDR_MTIME, fout);
+    
     int HDR_TYPEFLAG = 1;
+    char * typeflag = "1";
     str_out = headbin("0", HDR_TYPEFLAG);
     fwrite(str_out, 1, HDR_TYPEFLAG, fout);
     
+    
     int HDR_LINKNAME = 100;
+    char * linkname = getLinkname(out_filename);
     str_out = headbin("1", HDR_LINKNAME);
     fwrite(str_out, 1, HDR_LINKNAME, fout);
     
     int HDR_MAGIC = 6;
     str_out = headbin("ustar", HDR_MAGIC);
     fwrite(str_out, 1, HDR_MAGIC, fout);
+       
+
     
     int HDR_VERSION = 2;
     str_out = headbin("00", HDR_VERSION);
@@ -155,7 +165,7 @@ char * getMtime(char * fileName)
     
     char * mtime;
     int i_mtime = fileStat.st_mtime;
-    sprintf(mtime, "%o", i_mtime);
+    sprintf(mtime, "%d", i_mtime);
     return mtime;
     
 }
