@@ -14,11 +14,11 @@ int main(int argc, char *argv[])
     for(i = 2; i < argc; i ++)
         fin_array[i] = fopen(argv[i], "r");
 
-    FILE *fout = fopen(argv[1], "wb");
+    char * out_filename = argv[1];
+    FILE *fout = fopen(out_filename, "wb");
     char * str_out;
     
-    char * out_filename;
-    strcpy(out_filename, argv[1]);
+
     int HDR_NAME = 100;
     str_out = headbin(out_filename, HDR_NAME);
     fwrite(str_out, 1, HDR_NAME, fout);
@@ -43,13 +43,9 @@ int main(int argc, char *argv[])
     str_out = headbin(size, HDR_SIZE);
     fwrite(str_out, 1, HDR_SIZE, fout);
     
-    int HDR_MTIME = 12;
-    char * mtime = getMtime(out_filename);
-    str_out = headbin(mtime, HDR_MTIME);
-    fwrite(str_out, 1, HDR_MTIME, fout);
-    
     int HDR_CHKSUM = 8;
-    str_out = headbin("1234567 ", HDR_CHKSUM);
+    char * chksum = getChksum(out_filename);
+    str_out = headbin(chksum, HDR_CHKSUM);
     fwrite(str_out, 1, HDR_CHKSUM, fout);
     
     int HDR_TYPEFLAG = 1;
@@ -57,7 +53,7 @@ int main(int argc, char *argv[])
     fwrite(str_out, 1, HDR_TYPEFLAG, fout);
     
     int HDR_LINKNAME = 100;
-    str_out = headbin("", HDR_LINKNAME);
+    str_out = headbin("1", HDR_LINKNAME);
     fwrite(str_out, 1, HDR_LINKNAME, fout);
     
     int HDR_MAGIC = 6;
@@ -69,7 +65,7 @@ int main(int argc, char *argv[])
     fwrite(str_out, 1, HDR_VERSION, fout);
     
     int HDR_UNAME = 32;
-    str_out = headbin("boguslaw", HDR_UNAME);
+    str_out = headbin("boguslawfries", HDR_UNAME);
     fwrite(str_out, 1, HDR_UNAME, fout);
     
     int HDR_GNAME = 32;
@@ -89,8 +85,10 @@ int main(int argc, char *argv[])
     fwrite(str_out, 1, HDR_PREFIX, fout);
     
     
-    fflush(fout);
-    fclose(fout);
+    int ret = fflush(fout);
+    ret = fclose(fout);
+    
+    return 0;
 }
 char * headbin(char * tekst, int sizb)
 {
@@ -159,5 +157,27 @@ char * getMtime(char * fileName)
     int i_mtime = fileStat.st_mtime;
     sprintf(mtime, "%o", i_mtime);
     return mtime;
+    
+}
+char * getChksum(char * fileName)
+{
+    if(stat(fileName, &fileStat) < 0) 
+        return NULL;
+    char * chksum;
+
+    sprintf(chksum, "%s", "000000000000");
+    
+    return chksum;
+    
+}
+char * getLinkname(char * fileName)
+{
+    if(stat(fileName, &fileStat) < 0) 
+        return NULL;
+    
+    char * linkname;
+    
+    sprintf(linkname, "%s","1");
+    return linkname;
     
 }
