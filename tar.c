@@ -9,7 +9,6 @@ int main(int argc, char *argv[])
     for(int ndx = 1; ndx != argc; ++ndx)
         printf("argv[%d] --> %s\n", ndx, argv[ndx]);
     
-    
     FILE *fin_array[argc - 1];
     int i;
     for(i = 2; i < argc; i ++)
@@ -28,21 +27,6 @@ int main(int argc, char *argv[])
     str_out = headbin(mode, HDR_MODE);
     fwrite(str_out, 1, HDR_MODE, fout);
     
-    if(debug == 1)
-        {
-            printf("%c\n", str_out[0]);
-            printf("%c\n", str_out[1]);
-            printf("%c\n", str_out[2]);
-            printf("%c\n", str_out[3]);
-            printf("%c\n", str_out[4]);
-            printf("%c\n", str_out[5]);
-            printf("%c\n", str_out[6]);
-            printf("%c\n", str_out[7]);
-            printf("%c\n",'-');
-            fclose(fout);
-            exit(1);
-        }
-    
     int HDR_UID = 8;
     char * uid = getUID(out_filename);
     str_out = headbin(uid, HDR_UID);
@@ -58,21 +42,15 @@ int main(int argc, char *argv[])
     str_out = headbin(size, HDR_SIZE);
     fwrite(str_out, 1, HDR_SIZE, fout);
     
-    int HDR_CHKSUM = 8;
-    char * chksum = getChksum(out_filename);
-    str_out = headbin(chksum, HDR_CHKSUM);
-    fwrite(str_out, 1, HDR_CHKSUM, fout);
-    
-    int HDR_MTIME = 32;    
+    int HDR_MTIME = 12;    
     char * mtime = "000";
     str_out = headbin(mtime, HDR_MTIME);
     fwrite(str_out, 1, HDR_MTIME, fout);
     
-    int HDR_TYPEFLAG = 1;
-    char * typeflag = "1";
-    str_out = headbin("0", HDR_TYPEFLAG);
-    fwrite(str_out, 1, HDR_TYPEFLAG, fout);                             
-    
+    int HDR_CHKSUM = 8;
+    char * chksum = getChksum(out_filename);
+    str_out = headbin(chksum, HDR_CHKSUM);
+    fwrite(str_out, 1, HDR_CHKSUM, fout);
     
     int HDR_LINKNAME = 100;
     char * linkname = getLinkname(out_filename);
@@ -83,7 +61,12 @@ int main(int argc, char *argv[])
     char * magic = getMagic(out_filename);
     str_out = headbin("ustar", HDR_MAGIC);
     fwrite(str_out, 1, HDR_MAGIC, fout);
-           
+    
+    int HDR_TYPEFLAG = 1;
+    char * typeflag = "1";
+    str_out = headbin("0", HDR_TYPEFLAG);
+    fwrite(str_out, 1, HDR_TYPEFLAG, fout);                             
+               
     int HDR_VERSION = 2;
     char * version = getVersion(out_filename);
     str_out = headbin(version, HDR_VERSION);
@@ -138,7 +121,8 @@ char * getMode(char * fileName)
     
     char * sMode;
     
-    sprintf(sMode, "%o", fileStat.st_mode);
+    sprintf(sMode, "%o ", fileStat.st_mode);
+    sMode[0] = '0';
     return sMode;
      
 }
@@ -149,7 +133,9 @@ char * getUID(char * fileName)
     
     char * sUID;
     
-    sprintf(sUID, "%o", fileStat.st_uid);
+    sprintf(sUID, "%o ", fileStat.st_uid); 
+    sprintf(sUID, "%s", strcat(ZERO3, sUID));
+
     return sUID;
     
 }
@@ -160,7 +146,8 @@ char * getGID(char * fileName)
     
     char * sGID;
     
-    sprintf(sGID, "%o", fileStat.st_gid);
+    sprintf(sGID, "%o ", fileStat.st_gid);
+    sprintf(sGID, "%s", strcat(ZERO3, sGID));
     return sGID;
     
 }

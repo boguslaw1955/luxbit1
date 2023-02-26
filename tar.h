@@ -5,6 +5,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+char * ZERO3 = "000";
 
 char * headbin(char * text, int sizb);
 
@@ -19,6 +20,8 @@ char * getMagic(char * filename);
 char * getVersion(char * filename);
 char * getUname(char * filename);
 char * getGname(char * filename);
+
+
 struct posix_header
 {				/* byte offset */
   char name[100];		/*   0 */
