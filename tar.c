@@ -5,7 +5,7 @@ struct dirent *dp;
 int main(int argc, char *argv[])
 {
     int debug = 0;
-    printf("argc = %d\n", argc);
+    printf("argc = %d\n", argc - 1);
     for(int ndx = 1; ndx != argc; ++ndx)
         printf("argv[%d] --> %s\n", ndx, argv[ndx]);
     
@@ -52,21 +52,22 @@ int main(int argc, char *argv[])
     str_out = headbin(chksum, HDR_CHKSUM);
     fwrite(str_out, 1, HDR_CHKSUM, fout);
     
+    int HDR_TYPEFLAG = 1;
+    char * typeflag = getTypeflag(out_filename);
+    str_out = headbin(typeflag, HDR_TYPEFLAG);
+    fwrite(str_out, 1, HDR_TYPEFLAG, fout);
+    
     int HDR_LINKNAME = 100;
     char * linkname = getLinkname(out_filename);
-    str_out = headbin("1", HDR_LINKNAME);
+    str_out = headbin(out_filename, HDR_LINKNAME);
     fwrite(str_out, 1, HDR_LINKNAME, fout);
     
     int HDR_MAGIC = 6;
     char * magic = getMagic(out_filename);
     str_out = headbin("ustar", HDR_MAGIC);
     fwrite(str_out, 1, HDR_MAGIC, fout);
-    
-    int HDR_TYPEFLAG = 1;
-    char * typeflag = "1";
-    str_out = headbin("0", HDR_TYPEFLAG);
-    fwrite(str_out, 1, HDR_TYPEFLAG, fout);                             
-               
+                                 
+            
     int HDR_VERSION = 2;
     char * version = getVersion(out_filename);
     str_out = headbin(version, HDR_VERSION);
@@ -180,11 +181,23 @@ char * getChksum(char * fileName)
         return NULL;
     char * chksum;
 
-    sprintf(chksum, "%s", "000000000000");
+    sprintf(chksum, "%s", "1234");
     
     return chksum;
     
 }
+char * getTypeflag(char * fileName)
+{
+    if(stat(fileName, &fileStat) < 0) 
+        return NULL;
+    char * typeflag;
+    
+    sprintf(typeflag, "%s", "0");
+    
+    return typeflag;
+    
+}
+
 char * getLinkname(char * fileName)
 {
     if(stat(fileName, &fileStat) < 0) 
@@ -204,7 +217,7 @@ char * getMagic(char * fileName)
     
     char * magic;
     
-    sprintf(magic, "%s","1");
+    sprintf(magic, "%s","ustar");
     return magic;
     
 }
@@ -226,7 +239,7 @@ char * getUname(char * fileName)
     
     char * uname;
     
-    sprintf(uname, "%s","bfries");
+    sprintf(uname, "%s","00bfries");
     return uname;
     
 }

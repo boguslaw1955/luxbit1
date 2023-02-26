@@ -15,11 +15,13 @@ char * getGID(char * filename);
 char * getSize(char * filename);
 char * getMtime(char * filename);
 char * getChksum(char * filename);
+char * getTypeflag(char * filename);
 char * getLinkname(char * filename);
 char * getMagic(char * filename);
 char * getVersion(char * filename);
 char * getUname(char * filename);
 char * getGname(char * filename);
+
 
 
 struct posix_header
@@ -31,7 +33,8 @@ struct posix_header
   char size[12];		/* 124 */
   char mtime[12];		/* 136 */
   char chksum[8];		/* 148 */
-//  char typeflag;		/* 156 */
+//
+  char typeflag;		/* 156 */
   char linkname[100];		/* 157 */
   char magic[6];		/* 257 */
   char version[2];		/* 263 */
