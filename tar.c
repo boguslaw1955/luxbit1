@@ -4,6 +4,7 @@ struct stat fileStat;
 struct dirent *dp;
 int main(int argc, char *argv[])
 {
+    int debug = 0;
     printf("argc = %d\n", argc);
     for(int ndx = 1; ndx != argc; ++ndx)
         printf("argv[%d] --> %s\n", ndx, argv[ndx]);
@@ -16,8 +17,7 @@ int main(int argc, char *argv[])
 
     char * out_filename = argv[1];
     FILE *fout = fopen(out_filename, "wb");
-    char * str_out;
-    
+    char * str_out = 0;
 
     int HDR_NAME = 100;
     str_out = headbin(out_filename, HDR_NAME);
@@ -27,6 +27,21 @@ int main(int argc, char *argv[])
     char * mode = getMode(out_filename);
     str_out = headbin(mode, HDR_MODE);
     fwrite(str_out, 1, HDR_MODE, fout);
+    
+    if(debug == 1)
+        {
+            printf("%c\n", str_out[0]);
+            printf("%c\n", str_out[1]);
+            printf("%c\n", str_out[2]);
+            printf("%c\n", str_out[3]);
+            printf("%c\n", str_out[4]);
+            printf("%c\n", str_out[5]);
+            printf("%c\n", str_out[6]);
+            printf("%c\n", str_out[7]);
+            printf("%c\n",'-');
+            fclose(fout);
+            exit(1);
+        }
     
     int HDR_UID = 8;
     char * uid = getUID(out_filename);
@@ -48,7 +63,7 @@ int main(int argc, char *argv[])
     str_out = headbin(chksum, HDR_CHKSUM);
     fwrite(str_out, 1, HDR_CHKSUM, fout);
     
-    int HDR_MTIME;    
+    int HDR_MTIME = 32;    
     char * mtime = "000";
     str_out = headbin(mtime, HDR_MTIME);
     fwrite(str_out, 1, HDR_MTIME, fout);
@@ -112,6 +127,7 @@ char * headbin(char * tekst, int sizb)
         {
             buf[i] = 0;
         }	
+
     return buf;
 }
 
@@ -156,7 +172,7 @@ char * getSize(char * fileName)
     char * size;
     
     int i_size = fileStat.st_size;
-    sprintf(size, "%d",  i_size);
+    sprintf(size, "%o",  i_size);
     return size;
     
 }
@@ -189,7 +205,7 @@ char * getLinkname(char * fileName)
     
     char * linkname;
     
-    sprintf(linkname, "%s","1");
+    sprintf(linkname, "%s",fileName);
     return linkname;
     
 }
