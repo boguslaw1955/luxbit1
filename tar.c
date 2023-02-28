@@ -1,4 +1,5 @@
 #include "tar.h"
+#include <stdlib.h>
 
 struct stat fileStat;
 struct dirent *dp;
@@ -15,30 +16,31 @@ int main(int argc, char *argv[])
         fin_array[i] = fopen(argv[i], "r");
 
     char * out_filename = argv[1];
+    char * first_filename = argv[2];
     FILE *fout = fopen(out_filename, "wb");
     char * str_out = 0;
 
     int HDR_NAME = 100;
-    str_out = headbin(out_filename, HDR_NAME);
+    str_out = headbin(first_filename, HDR_NAME);
     fwrite(str_out, 1, HDR_NAME, fout);
     
     int HDR_MODE = 8;
-    char * mode = getMode(out_filename);
+    char * mode = getMode(first_filename);
     str_out = headbin(mode, HDR_MODE);
     fwrite(str_out, 1, HDR_MODE, fout);
     
     int HDR_UID = 8;
-    char * uid = getUID(out_filename);
+    char * uid = getUID(first_filename);
     str_out = headbin(uid, HDR_UID);
     fwrite(str_out, 1, HDR_UID, fout);
     
     int HDR_GID = 8;
-    char * gid = getGID(out_filename);
+    char * gid = getGID(first_filename);
     str_out = headbin(gid, HDR_GID);
     fwrite(str_out, 1, HDR_GID, fout);
     
     int HDR_SIZE = 12;
-    char * size = getSize(out_filename);
+    char * size = getSize(first_filename);
     str_out = headbin(size, HDR_SIZE);
     fwrite(str_out, 1, HDR_SIZE, fout);
     
@@ -48,38 +50,37 @@ int main(int argc, char *argv[])
     fwrite(str_out, 1, HDR_MTIME, fout);
     
     int HDR_CHKSUM = 8;
-    char * chksum = getChksum(out_filename);
+    char * chksum = getChksum(first_filename);
     str_out = headbin(chksum, HDR_CHKSUM);
-    fwrite(str_out, 1, HDR_CHKSUM, fout);
-    
+    fwrite(str_out, 1 ,HDR_CHKSUM, fout);
+      
     int HDR_TYPEFLAG = 1;
-    char * typeflag = getTypeflag(out_filename);
+    char * typeflag = getTypeflag(first_filename);
     str_out = headbin(typeflag, HDR_TYPEFLAG);
     fwrite(str_out, 1, HDR_TYPEFLAG, fout);
     
     int HDR_LINKNAME = 100;
-    char * linkname = getLinkname(out_filename);
-    str_out = headbin(out_filename, HDR_LINKNAME);
+    char * linkname = getLinkname(first_filename);
+    str_out = headbin(first_filename, HDR_LINKNAME);
     fwrite(str_out, 1, HDR_LINKNAME, fout);
     
     int HDR_MAGIC = 6;
-    char * magic = getMagic(out_filename);
+    char * magic = getMagic(first_filename);
     str_out = headbin("ustar", HDR_MAGIC);
     fwrite(str_out, 1, HDR_MAGIC, fout);
-                                 
-            
+                                             
     int HDR_VERSION = 2;
-    char * version = getVersion(out_filename);
+    char * version = getVersion(first_filename);
     str_out = headbin(version, HDR_VERSION);
     fwrite(str_out, 1, HDR_VERSION, fout);
     
     int HDR_UNAME = 32;
-    char * uname = getUname(out_filename);
+    char * uname = getUname(first_filename);
     str_out = headbin(uname, HDR_UNAME);
     fwrite(str_out, 1, HDR_UNAME, fout);
     
     int HDR_GNAME = 32;    
-    char * gname = getGname(out_filename);
+    char * gname = getGname(first_filename);
     str_out = headbin(gname, HDR_GNAME);
     fwrite(str_out, 1, HDR_GNAME, fout);
     
@@ -103,9 +104,9 @@ int main(int argc, char *argv[])
 }
 char * headbin(char * tekst, int sizb)
 {
-    char * buf;
+    char * buf = 0;
     int i;
-    buf = (char *) malloc(sizb);
+    buf = malloc(sizb);
     sprintf(buf, "%s" , tekst);
     for (i = strlen(tekst); i < sizb; i ++) 
         {
@@ -119,10 +120,11 @@ char * getMode(char * fileName)
 {
     if(stat(fileName, &fileStat) < 0) 
         return NULL;
-    
-    char * sMode;
+     char  * sMode = calloc(10,sizeof(char));
+    // sMode = malloc(8);
     
     sprintf(sMode, "%o ", fileStat.st_mode);
+
     sMode[0] = '0';
     return sMode;
      
@@ -132,8 +134,8 @@ char * getUID(char * fileName)
     if(stat(fileName, &fileStat) < 0) 
         return NULL;
     
-    char * sUID;
-    
+    char * sUID = calloc(10,sizeof(char));
+//    sUID = malloc(8);
     sprintf(sUID, "%o ", fileStat.st_uid); 
     sprintf(sUID, "%s", strcat(ZERO3, sUID));
 
@@ -145,7 +147,7 @@ char * getGID(char * fileName)
     if(stat(fileName, &fileStat) < 0) 
         return NULL;
     
-    char * sGID;
+    char * sGID = calloc(10,sizeof(char));
     
     sprintf(sGID, "%o ", fileStat.st_gid);
     sprintf(sGID, "%s", strcat(ZERO3, sGID));
@@ -157,8 +159,8 @@ char * getSize(char * fileName)
     if(stat(fileName, &fileStat) < 0) 
         return NULL;
     
-    char * size;
-    
+    char * size = calloc(10,sizeof(char));;
+//    size = malloc(12);
     int i_size = fileStat.st_size;
     sprintf(size, "%o",  i_size);
     return size;
@@ -169,7 +171,8 @@ char * getMtime(char * fileName)
     if(stat(fileName, &fileStat) < 0) 
         return NULL;
     
-    char * mtime;
+    char * mtime = calloc(20,sizeof(char));
+    
     int i_mtime = fileStat.st_mtime;
     sprintf(mtime, "%d", i_mtime);
     return mtime;
@@ -179,8 +182,8 @@ char * getChksum(char * fileName)
 {
     if(stat(fileName, &fileStat) < 0) 
         return NULL;
-    char * chksum;
-
+    char * chksum = calloc(10,sizeof(char));
+//  
     sprintf(chksum, "%s", "1234");
     
     return chksum;
@@ -190,8 +193,8 @@ char * getTypeflag(char * fileName)
 {
     if(stat(fileName, &fileStat) < 0) 
         return NULL;
-    char * typeflag;
-    
+    char * typeflag = calloc(2,sizeof(char));
+//    typeflag = malloc(1);
     sprintf(typeflag, "%s", "0");
     
     return typeflag;
@@ -203,10 +206,10 @@ char * getLinkname(char * fileName)
     if(stat(fileName, &fileStat) < 0) 
         return NULL;
     
-    char * linkname;
-    
-    sprintf(linkname, "%s",fileName);
-    return linkname;
+    char * linkname = calloc(100,sizeof(char));
+//    linkname = malloc(100);
+    sprintf(linkname, "%s", fileName);
+    return fileName;
     
 }
 
@@ -215,8 +218,8 @@ char * getMagic(char * fileName)
     if(stat(fileName, &fileStat) < 0) 
         return NULL;
     
-    char * magic;
-    
+    char * magic = calloc(10,sizeof(char));
+//  
     sprintf(magic, "%s","ustar");
     return magic;
     
@@ -226,8 +229,8 @@ char * getVersion(char * fileName)
     if(stat(fileName, &fileStat) < 0) 
         return NULL;
     
-    char * version;
-    
+    char * version = calloc(10,sizeof(char));
+//  
     sprintf(version, "%s","1");
     return version;
     
@@ -237,8 +240,8 @@ char * getUname(char * fileName)
     if(stat(fileName, &fileStat) < 0) 
         return NULL;
     
-    char * uname;
-    
+    char * uname = calloc(32,sizeof(char));;
+//  
     sprintf(uname, "%s","00bfries");
     return uname;
     
@@ -248,7 +251,7 @@ char * getGname(char * fileName)
     if(stat(fileName, &fileStat) < 0) 
         return NULL;
     
-    char * gname;
+    char * gname = calloc(32,sizeof(char));;
     
     sprintf(gname, "%s","utar");
     return gname;
@@ -259,7 +262,8 @@ char * getDevMajor(char * fileName)
     if(stat(fileName, &fileStat) < 0) 
         return NULL;
     
-    char * major;
+    char * major = calloc(10,sizeof(char));
+    
     sprintf(major, "%s", "20");
     
     return major;
@@ -270,9 +274,8 @@ char * getDevMinor(char * fileName)
     if(stat(fileName, &fileStat) < 0) 
         return NULL;
     
-    char * minor;
+    char * minor = calloc(10,sizeof(char));
     sprintf(minor, "%s", "20");
     
-    return minor;
-    
+    return minor;     
 }
