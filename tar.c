@@ -17,9 +17,10 @@ int main(int argc, char *argv[])
 
     char * out_filename = argv[1];
     char * first_filename = argv[2];
+    
     FILE *fout = fopen(out_filename, "wb");
-    char * str_out = 0;
-
+    
+    char * str_out = calloc(512, sizeof(512));
     int HDR_NAME = 100;
     str_out = headbin(first_filename, HDR_NAME);
     fwrite(str_out, 1, HDR_NAME, fout);
@@ -45,7 +46,7 @@ int main(int argc, char *argv[])
     fwrite(str_out, 1, HDR_SIZE, fout);
     
     int HDR_MTIME = 12;    
-    char * mtime = "000";
+    char * mtime = getMtime(first_filename);
     str_out = headbin(mtime, HDR_MTIME);
     fwrite(str_out, 1, HDR_MTIME, fout);
     
@@ -96,7 +97,6 @@ int main(int argc, char *argv[])
     str_out = headbin("", HDR_PREFIX);
     fwrite(str_out, 1, HDR_PREFIX, fout);
     
-    
     int ret = fflush(fout);
     ret = fclose(fout);
     
@@ -104,9 +104,8 @@ int main(int argc, char *argv[])
 }
 char * headbin(char * tekst, int sizb)
 {
-    char * buf = 0;
     int i;
-    buf = malloc(sizb);
+    char * buf = calloc(sizb, sizeof(char));
     sprintf(buf, "%s" , tekst);
     for (i = strlen(tekst); i < sizb; i ++) 
         {
@@ -159,10 +158,11 @@ char * getSize(char * fileName)
     if(stat(fileName, &fileStat) < 0) 
         return NULL;
     
-    char * size = calloc(10,sizeof(char));;
+    char * size = calloc(10,sizeof(char));
 //    size = malloc(12);
     int i_size = fileStat.st_size;
     sprintf(size, "%o",  i_size);
+//    printf("%s %jd\n", size,  (intmax_t));
     return size;
     
 }
@@ -173,8 +173,9 @@ char * getMtime(char * fileName)
     
     char * mtime = calloc(20,sizeof(char));
     
-    int i_mtime = fileStat.st_mtime;
-    sprintf(mtime, "%d", i_mtime);
+//    int i_mtime = fileStat.st_mtime;
+    sprintf(mtime,"%s", "2345");
+    //sprintf(mtime, "%d", i_mtime);
     return mtime;
     
 }
@@ -194,7 +195,6 @@ char * getTypeflag(char * fileName)
     if(stat(fileName, &fileStat) < 0) 
         return NULL;
     char * typeflag = calloc(2,sizeof(char));
-//    typeflag = malloc(1);
     sprintf(typeflag, "%s", "0");
     
     return typeflag;
@@ -207,7 +207,6 @@ char * getLinkname(char * fileName)
         return NULL;
     
     char * linkname = calloc(100,sizeof(char));
-//    linkname = malloc(100);
     sprintf(linkname, "%s", fileName);
     return fileName;
     
@@ -219,7 +218,7 @@ char * getMagic(char * fileName)
         return NULL;
     
     char * magic = calloc(10,sizeof(char));
-//  
+//  ;
     sprintf(magic, "%s","ustar");
     return magic;
     
