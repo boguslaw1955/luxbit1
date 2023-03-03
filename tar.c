@@ -1,280 +1,188 @@
 #include "tar.h"
-#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
 
-struct stat fileStat;
-struct dirent *dp;
-int main(int argc, char *argv[])
+int main(int argc, char *argv[]) 
 {
-    int debug = 0;
-    printf("argc = %d\n", argc - 1);
-    for(int ndx = 1; ndx != argc; ++ndx)
-        printf("argv[%d] --> %s\n", ndx, argv[ndx]);
-    
-    FILE *fin_array[argc - 1];
-    int i;
-    for(i = 2; i < argc; i ++)
-        fin_array[i] = fopen(argv[i], "r");
-
-    char * out_filename = argv[1];
-    char * first_filename = argv[2];
-    
+	struct stat fileStat;
+	char * curr_in_file_name = 0;
+	const char * out_filename = argv[1];
     FILE *fout = fopen(out_filename, "wb");
+    for (int i = 2; i < argc; i ++)
+        {
+            strcpy(curr_in_file_name, argv[i]);
+            FILE *fin = fopen(curr_in_file_name, "r");
+            char * out_buf = calloc(512, sizeof(char));
+            int ret = 0;
+            ret = makeName(curr_in_file_name, fout);
+            ret = makeMode(curr_in_file_name, fout);
+            ret = makeUID(curr_in_file_name, fout);
+            ret = makeGID(curr_in_file_name, fout);
+            ret = makeSize(curr_in_file_name, fout);
+            ret = makeMtime(curr_in_file_name, fout);
+            ret = makeChksum(curr_in_file_name, fout);
+            ret = makeTypeflag(curr_in_file_name, fout);
+            ret = makeLinkname(curr_in_file_name, fout);
+            ret = makeMagic(curr_in_file_name, fout);
+            ret = makeVersion(curr_in_file_name, fout);
+            ret = makeUname(curr_in_file_name, fout);
+            ret = makeGname(curr_in_file_name, fout);
+            ret = makeDevmajor(curr_in_file_name, fout);		/* 329 */
+            ret = makeDevminor(curr_in_file_name, fout);		/* 337 */
+            ret = makePrefix(curr_in_file_name, fout);	
+            
+            fclose(fin);
+        }
+    fclose(fout);
+    printf("%s", "koniec");
+    return 0;
+}
+int makeName(char * in_file_name, FILE * fout)
+{
+    int i;
+        char * buf = calloc(HDR_NAME, sizeof(char));
+        sprintf(buf, "%s" , in_file_name );
+        for (i = strlen(in_file_name); i < HDR_NAME; i ++) 
+            {
+                buf[i] = 0;
+            }	
     
-    char * str_out = calloc(512, sizeof(512));
-    int HDR_NAME = 100;
-    str_out = headbin(first_filename, HDR_NAME);
-    fwrite(str_out, 1, HDR_NAME, fout);
-    
-    int HDR_MODE = 8;
-    char * mode = getMode(first_filename);
-    str_out = headbin(mode, HDR_MODE);
-    fwrite(str_out, 1, HDR_MODE, fout);
-    
-    int HDR_UID = 8;
-    char * uid = getUID(first_filename);
-    str_out = headbin(uid, HDR_UID);
-    fwrite(str_out, 1, HDR_UID, fout);
-    
-    int HDR_GID = 8;
-    char * gid = getGID(first_filename);
-    str_out = headbin(gid, HDR_GID);
-    fwrite(str_out, 1, HDR_GID, fout);
-    
-    int HDR_SIZE = 12;
-    char * size = getSize(first_filename);
-    str_out = headbin(size, HDR_SIZE);
-    fwrite(str_out, 1, HDR_SIZE, fout);
-    
-    int HDR_MTIME = 12;    
-    char * mtime = getMtime(first_filename);
-    str_out = headbin(mtime, HDR_MTIME);
-    fwrite(str_out, 1, HDR_MTIME, fout);
-    
-    int HDR_CHKSUM = 8;
-    char * chksum = getChksum(first_filename);
-    str_out = headbin(chksum, HDR_CHKSUM);
-    fwrite(str_out, 1 ,HDR_CHKSUM, fout);
-      
-    int HDR_TYPEFLAG = 1;
-    char * typeflag = getTypeflag(first_filename);
-    str_out = headbin(typeflag, HDR_TYPEFLAG);
-    fwrite(str_out, 1, HDR_TYPEFLAG, fout);
-    
-    int HDR_LINKNAME = 100;
-    char * linkname = getLinkname(first_filename);
-    str_out = headbin(first_filename, HDR_LINKNAME);
-    fwrite(str_out, 1, HDR_LINKNAME, fout);
-    
-    int HDR_MAGIC = 6;
-    char * magic = getMagic(first_filename);
-    str_out = headbin("ustar", HDR_MAGIC);
-    fwrite(str_out, 1, HDR_MAGIC, fout);
-                                             
-    int HDR_VERSION = 2;
-    char * version = getVersion(first_filename);
-    str_out = headbin(version, HDR_VERSION);
-    fwrite(str_out, 1, HDR_VERSION, fout);
-    
-    int HDR_UNAME = 32;
-    char * uname = getUname(first_filename);
-    str_out = headbin(uname, HDR_UNAME);
-    fwrite(str_out, 1, HDR_UNAME, fout);
-    
-    int HDR_GNAME = 32;    
-    char * gname = getGname(first_filename);
-    str_out = headbin(gname, HDR_GNAME);
-    fwrite(str_out, 1, HDR_GNAME, fout);
-    
-    int HDR_DEVMAJOR = 8;
-    str_out = headbin("20", HDR_DEVMAJOR);
-    fwrite(str_out, 1, HDR_DEVMAJOR, fout);
-    
-    int HDR_DEVMINOR = 8;
-    str_out = headbin("20", HDR_DEVMINOR);
-    fwrite(str_out, 1, HDR_DEVMINOR, fout);
-    
-    int HDR_PREFIX = 155;
-    str_out = headbin("", HDR_PREFIX);
-    fwrite(str_out, 1, HDR_PREFIX, fout);
-    
-    int ret = fflush(fout);
-    ret = fclose(fout);
+    fwrite(buf, 1, HDR_NAME, fout);
     
     return 0;
 }
-char * headbin(char * tekst, int sizb)
+int makeMode(char * in_file_name, FILE * fout)
 {
+    struct stat fileStat;
+    if(stat(in_file_name, &fileStat) < 0) 
+        return -1;
+    char * buf = calloc(HDR_MODE, sizeof(char));
+    sprintf(buf, "%o ", fileStat.st_mode);
+    
+    buf[0] = '0';
     int i;
-    char * buf = calloc(sizb, sizeof(char));
-    sprintf(buf, "%s" , tekst);
-    for (i = strlen(tekst); i < sizb; i ++) 
+    for (i = strlen(buf); i < HDR_MODE; i ++) 
         {
             buf[i] = 0;
         }	
-
-    return buf;
+    
+    fwrite(buf, 1, HDR_MODE, fout);
+    
+    return 0;
 }
 
-char * getMode(char * fileName)
+int makeUID(char * in_file_name, FILE *fout)
 {
-    if(stat(fileName, &fileStat) < 0) 
-        return NULL;
-     char  * sMode = calloc(10,sizeof(char));
-    // sMode = malloc(8);
+    struct stat fileStat;
+    if(stat(in_file_name, &fileStat) < 0) 
+        return -1;
+    char * buf = calloc(HDR_UID, sizeof(char));
     
-    sprintf(sMode, "%o ", fileStat.st_mode);
+    sprintf(buf, "%o ", fileStat.st_uid);
+    int i;
+    for (i = strlen(buf); i < HDR_UID; i ++) 
+        {
+            buf[i] = 0;
+        }	
+    
+    fwrite(strcat(ZERO3, buf), 1, HDR_UID, fout);
+    return 0; 
+    
+}
+int makeGID(char * in_file_name, FILE *fout)
+{
+    struct stat fileStat;
+    if(stat(in_file_name, &fileStat) < 0) 
+        return -1;
+    char * buf = calloc(HDR_GID, sizeof(char));
+    
+    sprintf(buf, "%o ", fileStat.st_gid);
+    int i;
+    for (i = strlen(buf); i < HDR_GID; i ++) 
+    {
+        buf[i] = 0;
+    }
+    fwrite(strcat(ZERO3, buf), 1, HDR_GID, fout);
+    return 0; 
+    
+}
 
-    sMode[0] = '0';
-    return sMode;
-     
-}
-char * getUID(char * fileName)
+int makeSize(char * in_file_name, FILE *fout)
 {
-    if(stat(fileName, &fileStat) < 0) 
-        return NULL;
+    struct stat fileStat;
+    if(stat(in_file_name, &fileStat) < 0) 
+        return -1;
     
-    char * sUID = calloc(10,sizeof(char));
-//    sUID = malloc(8);
-    sprintf(sUID, "%o ", fileStat.st_uid); 
-    sprintf(sUID, "%s", strcat(ZERO3, sUID));
-
-    return sUID;
+    char * buf = calloc(HDR_SIZE,sizeof(char));
     
-}
-char * getGID(char * fileName)
-{
-    if(stat(fileName, &fileStat) < 0) 
-        return NULL;
-    
-    char * sGID = calloc(10,sizeof(char));
-    
-    sprintf(sGID, "%o ", fileStat.st_gid);
-    sprintf(sGID, "%s", strcat(ZERO3, sGID));
-    return sGID;
-    
-}
-char * getSize(char * fileName)
-{
-    if(stat(fileName, &fileStat) < 0) 
-        return NULL;
-    
-    char * size = calloc(10,sizeof(char));
-//    size = malloc(12);
     int i_size = fileStat.st_size;
-    sprintf(size, "%o",  i_size);
-//    printf("%s %jd\n", size,  (intmax_t));
-    return size;
+    sprintf(buf, "%o",  i_size);
+    int i;
+    for (i = strlen(buf); i < HDR_SIZE; i ++) 
+        {
+            buf[i] = 0;
+        }
+    fwrite(buf, 1, HDR_SIZE, fout);
+    return 0;
     
 }
-char * getMtime(char * fileName)
+int makeMtime(char * in_file_name, FILE *fout)
 {
-    if(stat(fileName, &fileStat) < 0) 
-        return NULL;
+    struct stat fileStat;
+    if(stat(in_file_name, &fileStat) < 0) 
+        return -1;
     
-    char * mtime = calloc(20,sizeof(char));
+    char * buf = calloc(HDR_MTIME,sizeof(char));
     
-//    int i_mtime = fileStat.st_mtime;
-    sprintf(mtime,"%s", "2345");
-    //sprintf(mtime, "%d", i_mtime);
-    return mtime;
+    int i_mtime = fileStat.st_mtime;
+    sprintf(buf,"%o ", i_mtime);
+    int i;
+    for (i = strlen(buf); i < HDR_MTIME; i ++) 
+        {
+            buf[i] = 0;
+        }
+    fwrite(buf, 1, HDR_MTIME, fout);
+    return 0;
     
 }
-char * getChksum(char * fileName)
+int makeTypeflag(char * in_file_name, FILE *fout)
 {
-    if(stat(fileName, &fileStat) < 0) 
-        return NULL;
-    char * chksum = calloc(10,sizeof(char));
-//  
-    sprintf(chksum, "%s", "1234");
-    
-    return chksum;
-    
+    return 0;
 }
-char * getTypeflag(char * fileName)
+int makeChksum(char * in_file_name, FILE *fout)
 {
-    if(stat(fileName, &fileStat) < 0) 
-        return NULL;
-    char * typeflag = calloc(2,sizeof(char));
-    sprintf(typeflag, "%s", "0");
-    
-    return typeflag;
-    
+    return 0;
 }
-
-char * getLinkname(char * fileName)
+int makeLinkname(char * in_file_name, FILE *fout)
 {
-    if(stat(fileName, &fileStat) < 0) 
-        return NULL;
-    
-    char * linkname = calloc(100,sizeof(char));
-    sprintf(linkname, "%s", fileName);
-    return fileName;
-    
+    return 0;
 }
 
-char * getMagic(char * fileName)
+ int makeMagic(char * in_file_name, FILE *fout)
 {
-    if(stat(fileName, &fileStat) < 0) 
-        return NULL;
-    
-    char * magic = calloc(10,sizeof(char));
-//  ;
-    sprintf(magic, "%s","ustar");
-    return magic;
-    
+    return 0;
 }
-char * getVersion(char * fileName)
+int makeVersion(char * in_file_name, FILE *fout)
 {
-    if(stat(fileName, &fileStat) < 0) 
-        return NULL;
-    
-    char * version = calloc(10,sizeof(char));
-//  
-    sprintf(version, "%s","1");
-    return version;
-    
+    return 0;
 }
-char * getUname(char * fileName)
+int makeUname(char * in_file_name, FILE *fout)
 {
-    if(stat(fileName, &fileStat) < 0) 
-        return NULL;
-    
-    char * uname = calloc(32,sizeof(char));;
-//  
-    sprintf(uname, "%s","00bfries");
-    return uname;
-    
+    return 0;
 }
-char * getGname(char * fileName)
+int makeGname(char * in_file_name, FILE *fout)
 {
-    if(stat(fileName, &fileStat) < 0) 
-        return NULL;
-    
-    char * gname = calloc(32,sizeof(char));;
-    
-    sprintf(gname, "%s","utar");
-    return gname;
-    
+    return 0;
 }
-char * getDevMajor(char * fileName)
+int makeDevmajor(char * in_file_name, FILE *fout)
 {
-    if(stat(fileName, &fileStat) < 0) 
-        return NULL;
-    
-    char * major = calloc(10,sizeof(char));
-    
-    sprintf(major, "%s", "20");
-    
-    return major;
-    
-}
-char * getDevMinor(char * fileName)
+    return 0;
+}/* 329 */
+int makeDevminor(char * in_file_name, FILE *fout)
 {
-    if(stat(fileName, &fileStat) < 0) 
-        return NULL;
-    
-    char * minor = calloc(10,sizeof(char));
-    sprintf(minor, "%s", "20");
-    
-    return minor;     
+    return 0;
+}/* 337 */
+int makePrefix(char * in_file_name, FILE *fout)
+{
+    return 0;
 }
