@@ -80,11 +80,11 @@ int makeUID(char * in_file_name, FILE *fout)
         return -1;
     char * buf = calloc(HDR_UID, sizeof(char));
     int ch = fileStat.st_uid;
-	if(ch < 10){ sprintf(buf, "%s%i ", ZERO5,ch); }
-	else if(ch < 100){ sprintf(buf, "%s%i ", ZERO4, ch); }
-	else if (ch < 1000){ sprintf(buf, "%s%i ", ZERO3,ch); }
-	else if (ch < 10000){ sprintf(buf, "%s%i ", ZERO2, ch); }
-	else  sprintf(buf, "%s%i ", "0", ch);
+	if(ch < 10){ sprintf(buf, "%s%o ", ZERO5,ch); }
+	else if(ch < 100){ sprintf(buf, "%s%o ", ZERO4, ch); }
+	else if (ch < 1000){ sprintf(buf, "%s%o ", ZERO3,ch); }
+	else if (ch < 10000){ sprintf(buf, "%s%o ", ZERO2, ch); }
+	else  sprintf(buf, "%s%o ", "0", ch);
     int i;
     for (i = strlen(buf); i < HDR_UID; i ++) 
         {
@@ -102,11 +102,11 @@ int makeGID(char * in_file_name, FILE *fout)
         return -1;
     char * buf = calloc(HDR_GID, sizeof(char));
 	int ch = fileStat.st_gid;
-	if(ch < 10){ sprintf(buf, "%s%i ", ZERO5, ch); }
-	else if(ch < 100){ sprintf(buf, "%s%i ", ZERO4, ch); }
-	else if (ch < 1000){ sprintf(buf, "%s%i ", ZERO3, ch); }
-	else if (ch < 10000){ sprintf(buf, "%s%i ", ZERO2, ch); }
-	else  sprintf(buf, "%s%i ", "0", ch);
+	if(ch < 10){ sprintf(buf, "%s%o ", ZERO5, ch); }
+	else if(ch < 100){ sprintf(buf, "%s%o ", ZERO4, ch); }
+	else if (ch < 1000){ sprintf(buf, "%s%o ", ZERO3, ch); }
+	else if (ch < 10000){ sprintf(buf, "%s%o ", ZERO2, ch); }
+	else  sprintf(buf, "%s%o ", "0", ch);
     int i;
     for (i = strlen(buf); i < HDR_GID; i ++) 
     {
@@ -127,7 +127,7 @@ int makeSize(char * in_file_name, FILE *fout)
     char * buf = calloc(HDR_SIZE,sizeof(char));
     
     int i_size = fileStat.st_size;
-    sprintf(buf, "%i",  i_size);
+    sprintf(buf, "%o",  i_size);
     int i;
     for (i = strlen(buf); i < HDR_SIZE; i ++) 
         {
@@ -147,7 +147,7 @@ int makeMtime(char * in_file_name, FILE *fout)
     char * buf = calloc(HDR_MTIME,sizeof(char));
     
     int i_mtime = fileStat.st_mtime;
-    sprintf(buf,"%i ", i_mtime);
+    sprintf(buf,"%o ", i_mtime);
     int i;
     for (i = strlen(buf); i < HDR_MTIME; i ++) 
         {
@@ -199,27 +199,67 @@ int makeLinkname(char * in_file_name, FILE *fout)
 }
 int makeVersion(char * in_file_name, FILE *fout)
 {
-	fwrite("00", 1, HDR_VERSION, fout);
+	char * buf = calloc(HDR_VERSION,sizeof(char));
+	sprintf(buf, "%s", "00" );
+	int i;
+	for (i = strlen(buf); i < HDR_VERSION; i ++) 
+		{
+			buf[i] = 0;
+		}
+	fwrite(buf, 1, HDR_VERSION, fout);
+	free(buf);
     return 0;
 }
 int makeUname(char * in_file_name, FILE *fout)
 {
-	fwrite("fries", 1, HDR_UNAME, fout);
+	char * buf = calloc(HDR_UNAME,sizeof(char));
+	sprintf(buf, "%s", "fries" );
+	int i;
+	for (i = strlen(buf); i < HDR_UNAME; i ++) 
+		{
+			buf[i] = 0;
+		}
+	fwrite(buf, 1, HDR_UNAME, fout);
+	free(buf);
     return 0;
 }
 int makeGname(char * in_file_name, FILE *fout)
 {
-	fwrite("staff", 1, HDR_GNAME, fout);
+	char * buf = calloc(HDR_GNAME,sizeof(char));
+	sprintf(buf, "%s", "staff" );
+	int i;
+	for (i = strlen(buf); i < HDR_GNAME; i ++) 
+		{
+			buf[i] = 0;
+		}
+	fwrite(buf, 1, HDR_GNAME, fout);
+	free(buf);
     return 0;
 }
 int makeDevmajor(char * in_file_name, FILE *fout)
 {
-	fwrite("major", 1, HDR_DEVMAJOR, fout);
+	char * buf = calloc(HDR_DEVMAJOR,sizeof(char));
+	sprintf(buf, "%s", "major" );
+	int i;
+	for (i = strlen(buf); i < HDR_DEVMAJOR; i ++) 
+		{
+			buf[i] = 0;
+		}
+	fwrite(buf, 1, HDR_DEVMAJOR, fout);
+	free(buf);
     return 0;
 }/* 329 */
 int makeDevminor(char * in_file_name, FILE *fout)
 {
-	fwrite("minor", 1, HDR_DEVMINOR, fout);
+	char * buf = calloc(HDR_DEVMINOR,sizeof(char));
+	sprintf(buf, "%s", "minor" );
+	int i;
+	for (i = strlen(buf); i < HDR_DEVMINOR; i ++) 
+		{
+			buf[i] = 0;
+		}
+	fwrite(buf, 1, HDR_DEVMINOR, fout);
+	free(buf);
     return 0;
 }/* 337 */
 int makePrefix(char * in_file_name, FILE *fout)
