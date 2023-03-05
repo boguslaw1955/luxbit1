@@ -126,8 +126,13 @@ int makeSize(char * in_file_name, FILE *fout)
     
     char * buf = calloc(HDR_SIZE,sizeof(char));
     
-    int i_size = fileStat.st_size;
-    sprintf(buf, "%o",  i_size);
+    int ich = fileStat.st_size;
+	
+	if(ich < 10){ sprintf(buf, "%s00000%o ", ZERO5, ich); }
+	else if(ich < 100){ sprintf(buf, "%s0000%o ", ZERO4, ich); }
+	else if (ich < 1000){ sprintf(buf, "%s000%o ", ZERO3, ich); }
+	else if (ich < 10000){ sprintf(buf, "%s00%o ", ZERO2, ich); }
+	else  sprintf(buf, "%s%o ", "0", ich);
     int i;
     for (i = strlen(buf); i < HDR_SIZE; i ++) 
         {
@@ -160,13 +165,13 @@ int makeMtime(char * in_file_name, FILE *fout)
 }
 int makeChksum(char * in_file_name, FILE *fout)
 {
-	fwrite("12345678", 1, HDR_CHECKSUM, fout);
+	fwrite("00000000", 1, HDR_CHECKSUM, fout);
 	return 0;
 }
 
 int makeTypeflag(char * in_file_name, FILE *fout)
 {
-	fwrite("1", 1, HDR_TYPEFLAG, fout);
+	fwrite("0", 1, HDR_TYPEFLAG, fout);
     return 0;
 }
 
@@ -239,7 +244,7 @@ int makeGname(char * in_file_name, FILE *fout)
 int makeDevmajor(char * in_file_name, FILE *fout)
 {
 	char * buf = calloc(HDR_DEVMAJOR,sizeof(char));
-	sprintf(buf, "%s", "major" );
+	sprintf(buf, "%s", "000000 " );
 	int i;
 	for (i = strlen(buf); i < HDR_DEVMAJOR; i ++) 
 		{
@@ -252,7 +257,7 @@ int makeDevmajor(char * in_file_name, FILE *fout)
 int makeDevminor(char * in_file_name, FILE *fout)
 {
 	char * buf = calloc(HDR_DEVMINOR,sizeof(char));
-	sprintf(buf, "%s", "minor" );
+	sprintf(buf, "%s", "000000 " );
 	int i;
 	for (i = strlen(buf); i < HDR_DEVMINOR; i ++) 
 		{
