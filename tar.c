@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
             fclose(fin);
         }
     fclose(fout);
-    printf("%s", "koniec tar");
+    printf("%s", "  \nkoniec programu tar");
     return 0;
 }
 int makeName(char * in_file_name, FILE * fout)
@@ -132,7 +132,7 @@ int makeSize(char * in_file_name, FILE *fout)
 	else if(ich < 100){ sprintf(buf, "%s0000%o ", ZERO4, ich); }
 	else if (ich < 1000){ sprintf(buf, "%s000%o ", ZERO3, ich); }
 	else if (ich < 10000){ sprintf(buf, "%s00%o ", ZERO2, ich); }
-	else  sprintf(buf, "%s%o ", "0", ich);
+	else  sprintf(buf, "%s%o ", "000000000000000000", ich);
     int i;
     for (i = strlen(buf); i < HDR_SIZE; i ++) 
         {
@@ -165,20 +165,24 @@ int makeMtime(char * in_file_name, FILE *fout)
 }
 int makeChksum(char * in_file_name, FILE *fout)
 {
-	fwrite("00000000", 1, HDR_CHECKSUM, fout);
+	fwrite("013760", 1, HDR_CHECKSUM, fout);
 	return 0;
 }
 
 int makeTypeflag(char * in_file_name, FILE *fout)
 {
-	fwrite("0", 1, HDR_TYPEFLAG, fout);
+    char * buf = calloc(HDR_TYPEFLAG,sizeof(char));
+    buf[0] = '0';
+    printf("%s", buf);
+	fwrite(buf, 1, HDR_TYPEFLAG, fout);
+    
     return 0;
 }
 
 int makeLinkname(char * in_file_name, FILE *fout)
 {
 	char * buf = calloc(HDR_LINKNAME,sizeof(char));
-	sprintf(buf, "%s", in_file_name);
+	sprintf(buf, "%s", "");
 	int i;
 	for (i = strlen(buf); i < HDR_LINKNAME; i ++) 
 		{
@@ -218,7 +222,7 @@ int makeVersion(char * in_file_name, FILE *fout)
 int makeUname(char * in_file_name, FILE *fout)
 {
 	char * buf = calloc(HDR_UNAME,sizeof(char));
-	sprintf(buf, "%s", "fries" );
+	sprintf(buf, "%s", "boguslaw" );
 	int i;
 	for (i = strlen(buf); i < HDR_UNAME; i ++) 
 		{
