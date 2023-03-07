@@ -51,7 +51,7 @@ int makeBuffer(char * buf)
 }
 int writeHeader(char * buf, FILE * fout)
 {
-    fwrite(buf, 1, SPREFIX, fout);
+    fwrite(buf, 1, BUFFSIZE, fout);                                                  
     return 0;
 }
 int makeName(char * in_filename, int pos, int size, char * buf)
@@ -115,7 +115,7 @@ int makeSize(char * in_filename, int pos, int size, char * buf)
 	else if(ich < 100){ sprintf(buf + PSIZE, "%s0000%o ", ZERO4, ich); }
 	else if (ich < 1000){ sprintf(buf + PSIZE, "%s000%o ", ZERO3, ich); }
 	else if (ich < 10000){ sprintf(buf + PSIZE, "%s00%o ", ZERO2, ich); }
-	else  sprintf(buf + PSIZE, "%s%o ", "000000000000000000", ich);
+	else  sprintf(buf + PSIZE, "%s%o ", "0", ich);
 
     return 0;
     
@@ -130,16 +130,16 @@ int makeMtime(char * in_filename, int pos, int size, char * buf)
     sprintf(buf + PMTIME,"%o ", i_mtime);
 
     return 0;
-    
-    int checksum = 0;
 }
 int makeChksum(char * in_filename, int pos, int size, char * buf)
 {
+    sprintf(buf + PCHECKSUM,"%s", "013760");
 	return 0;
 }
 
 int makeTypeflag(char * in_filename, int pos, int size, char * buf)
 {
+    sprintf(buf + PTYPEFLAG, "%s", "1");
     return 0;
 }
 
