@@ -67,7 +67,7 @@ int makeMode(char * in_filename, int pos, int size, char * buf)
         return -1;
     sprintf(buf + PMODE, "%o ", fileStat.st_mode);
     
-    buf[0] = '0';
+    (buf + PMODE)[0] = '0';
     return 0;
 }
 
