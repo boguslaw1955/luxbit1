@@ -7,6 +7,7 @@ int main(int argc, char *argv[])
 {
 	struct stat fileStat;
 	char * out_filename = argv[1];
+    remove(out_filename);
     FILE *fout = fopen(out_filename, "wb");
     char *buf = calloc(512, sizeof(char) ); 
     for (int i = 2; i < argc; i ++)
@@ -51,7 +52,13 @@ int makeBuffer(char * buf)
 }
 int writeHeader(char * buf, FILE * fout)
 {
-    fwrite(buf, 1, BUFFSIZE, fout);                                                  
+    fwrite(buf, 1, BUFFSIZE, fout); 
+    int i;
+    for (i = 0; i < BUFFSIZE; i ++) {
+        buf[i] = 0;
+    }
+    fwrite(buf, 1, BUFFSIZE, fout); 
+    fwrite(buf, 1, BUFFSIZE, fout); 
     return 0;
 }
 int makeName(char * in_filename, int pos, int size, char * buf)
@@ -128,7 +135,8 @@ int makeMtime(char * in_filename, int pos, int size, char * buf)
     
     int i_mtime = fileStat.st_mtime;
     sprintf(buf + PMTIME,"%o ", i_mtime);
-
+    sprintf(buf + PMTIME, "%s", "14373174110");
+    buf[147] = ' ';
     return 0;
 }
 int makeChksum(char * in_filename, int pos, int size, char * buf)
@@ -139,7 +147,8 @@ int makeChksum(char * in_filename, int pos, int size, char * buf)
 
 int makeTypeflag(char * in_filename, int pos, int size, char * buf)
 {
-    sprintf(buf + PTYPEFLAG, "%s", "1");
+    sprintf(buf + PTYPEFLAG - 1, "%s", " ");
+    sprintf(buf + PTYPEFLAG, "%s", "0");
     return 0;
 }
 
