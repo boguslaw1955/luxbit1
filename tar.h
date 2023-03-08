@@ -4,6 +4,9 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
+#include <pwd.h>
+#include <grp.h>
+
 
 char * TMAGIC  = "ustar";
 char * TVERSION = "00";
@@ -72,15 +75,13 @@ int makeUID(char * in_filename, int pos, int size, char * buf);
 int makeGID(char * in_filename, int pos, int size, char * buf);
 int makeSize(char * in_filename, int pos, int size, char * buf);
 int makeMtime(char * in_filename, int pos, int size, char * buf);
-int makeChksum(char * in_filename, int pos, int size, char * buf);
 int makeTypeflag(char * in_filename, int pos, int size, char * buf);
 int makeLinkname(char * in_filename, int pos, int size, char * buf);
 int makeMagic(char * in_filename, int pos, int size, char * buf);
 int makeVersion(char * in_filename, int pos, int size, char * buf);
-int makeUname(char * in_filename, int pos, int size, char * buf);
-int makeGname(char * in_filename, int pos, int size, char * buf);
 int makeDevmajor(char * in_filename, int pos, int size, char * buf);		/* 329 */
 int makeDevminor(char * in_filename, int pos, int size, char * buf);		/* 337 */
 int makePrefix(char * in_filename, int pos, int size, char * buf);
+int makeChksum(char * buf);
 int writeHeader(char * buf, FILE * out_file_name);
 int makeContent();
