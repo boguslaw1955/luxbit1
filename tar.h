@@ -83,5 +83,6 @@ int makeDevmajor(char * in_filename, int pos, int size, char * buf);		/* 329 */
 int makeDevminor(char * in_filename, int pos, int size, char * buf);		/* 337 */
 int makePrefix(char * in_filename, int pos, int size, char * buf);
 int makeChksum(char * buf);
-int writeHeader(char * buf, FILE * out_file_name);
-int makeContent();
+int writeHeader(char * buf, FILE * out_file);
+int writeContent(FILE * in_file, FILE * out_file);
+int finito(FILE * out_file);

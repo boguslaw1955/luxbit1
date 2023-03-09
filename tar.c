@@ -1,4 +1,5 @@
 #include "tar.h"
+#include <stdlib.h>
 
 int main(int argc, char *argv[]) 
 {
@@ -10,7 +11,7 @@ int main(int argc, char *argv[])
     
     for (int i = 2; i < argc; i ++)
         {
-            FILE *fin = fopen(argv[i], "r");
+            FILE *fin = fopen(argv[i], "rb");
 			
             int ret = 0;
             ret = makeBuffer(buf);
@@ -29,11 +30,26 @@ int main(int argc, char *argv[])
             ret = makePrefix(argv[i], PREFIX, SPREFIX, buf);
             ret = makeChksum(buf);
             ret = writeHeader(buf, fout);
-        
+            ret = writeContent(fin, fout );
             fclose(fin);
         }
+    finito(fout);
     fclose(fout);
+    free(buf);
     printf("%s", "  \nkoniec programu tar");
+    return 0;
+}
+int finito(FILE * out_file)
+{
+    int i;
+    unsigned char * content = calloc(512, sizeof(char) ); 
+    for (i = 0; i < BUFFSIZE; i ++) 
+        {
+            content[i] = 0;
+        }
+    fwrite(content, 1, BUFFSIZE, out_file); 
+    fwrite(content, 1, BUFFSIZE, out_file); 
+    free(content);
     return 0;
 }
 int makeBuffer(char * buf)
@@ -52,9 +68,25 @@ int writeHeader(char * buf, FILE * fout)
     for (i = 0; i < BUFFSIZE; i ++) {
         buf[i] = 0;
     }
-    fwrite(buf, 1, BUFFSIZE, fout); 
-    fwrite(buf, 1, BUFFSIZE, fout); 
     return 0;
+}
+int writeContent(FILE * in_file, FILE * out_file)
+{
+    int ret = 0;
+    unsigned char * content = calloc(512, sizeof(char) ); 
+    size_t block_read = 1;
+    int i;
+    while ( (int) block_read > 0)
+            {
+                for (i = 0; i < BUFFSIZE; i ++) 
+                {
+                    content[i] = 0;
+                }
+                block_read = fread(content, BUFFSIZE, 1, in_file);
+                ret = fwrite(content, 1, BUFFSIZE, out_file);
+            }
+    free(content);
+    return ret;
 }
 int makeName(char * in_filename, int pos, int size, char * buf)
 {
@@ -137,7 +169,6 @@ int makeMtime(char * in_filename, int pos, int size, char * buf)
     
     int i_mtime = fileStat.st_mtime;
     sprintf(buf + PMTIME,"%o ", i_mtime);
-    sprintf(buf + PMTIME, "%s", "14373174110");
     buf[147] = ' ';
     return 0;
 }
