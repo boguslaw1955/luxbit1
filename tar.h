@@ -5,8 +5,10 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #ifndef _WIN32
+#ifndef _WIN64
 	#include <pwd.h>
 	#include <grp.h>
+#endif
 #endif
 
 char * TMAGIC  = "ustar";

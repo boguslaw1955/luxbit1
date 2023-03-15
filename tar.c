@@ -5,11 +5,6 @@ int main(int argc, char *argv[])
 	char * out_filename = argv[1];
     remove(out_filename);
     FILE *fout = fopen(out_filename, "wb");
-    if (fout == NULL)
-    {
-        printf("plik out.tar nie moze byc otwarty");
-        exit(7);
-    }
     char *buf = calloc(512, sizeof(char) ); 
     
     for (int i = 2; i < argc; i ++)
