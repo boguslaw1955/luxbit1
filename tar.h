@@ -4,9 +4,10 @@
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/types.h>
-#include <pwd.h>
-#include <grp.h>
-
+#ifndef _WIN32
+	#include <pwd.h>
+	#include <grp.h>
+#endif
 
 char * TMAGIC  = "ustar";
 char * TVERSION = "00";

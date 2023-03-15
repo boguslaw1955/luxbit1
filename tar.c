@@ -1,12 +1,15 @@
 #include "tar.h"
-#include <stdlib.h>
 
 int main(int argc, char *argv[]) 
 {
-	struct stat fileStat;
 	char * out_filename = argv[1];
     remove(out_filename);
     FILE *fout = fopen(out_filename, "wb");
+    if (fout == NULL)
+    {
+        printf("plik out.tar nie moze byc otwarty");
+        exit(7);
+    }
     char *buf = calloc(512, sizeof(char) ); 
     
     for (int i = 2; i < argc; i ++)
@@ -117,17 +120,22 @@ int makeUID(char * in_filename, int pos, int size, char * buf)
 	else if (ch < 1000){ sprintf(buf + PUID, "%s%o ", ZERO3,ch); }
 	else if (ch < 10000){ sprintf(buf + PUID, "%s%o ", ZERO2, ch); }
 	else  sprintf(buf + PUID, "%s%o ", "0", ch);
-    
+#ifndef _WIN32
     struct passwd *pws;
     pws = getpwuid(ch);
     sprintf(buf + PUNAME, "%s", pws->pw_name);
-    return 0; 
-    
+ 
+#else
+    sprintf(buf + PUNAME, "%s", "0");
+#endif
+    return 0;
 }
 int makeGID(char * in_filename, int pos, int size, char * buf)
 {
     struct stat fileStat;
+#ifndef _WIN32
     struct group *grp;
+#endif
     if(stat(in_filename, &fileStat) < 0) 
         return -1;
 	int ch = fileStat.st_gid;
@@ -136,10 +144,12 @@ int makeGID(char * in_filename, int pos, int size, char * buf)
 	else if (ch < 1000){ sprintf(buf + PGID, "%s%o ", ZERO3, ch); }
 	else if (ch < 10000){ sprintf(buf + PGID, "%s%o ", ZERO2, ch); }
 	else  sprintf(buf + PGID, "%s%o ", "0", ch);
-    
+#ifndef _WIN32
     grp = getgrgid(fileStat.st_gid);
     sprintf(buf + PGNAME, "%s", grp->gr_name);
-    
+#else
+    sprintf(buf + PGNAME, "%s", "0");
+#endif
     return 0;     
     
 }
